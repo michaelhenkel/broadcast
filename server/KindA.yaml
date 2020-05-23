@@ -1,0 +1,35 @@
+messages:
+- id: client1
+  content: hello from client1
+  timestamp: 2020-05-22 16:39:38.051129 -0700 PDT m=+0.002479658
+  kind: KindA
+  name: res3
+  status:
+    msg: SUCCESS
+  version: 3509
+  messages: []
+- id: client1
+  content: c1
+  timestamp: 2020-05-22 18:28:04.619215 -0700 PDT m=+0.004064583
+  kind: KindA
+  name: res1KindA
+  status:
+    msg: SUCCESS
+  version: 8
+  messages:
+  - id: ""
+    content: c2
+    timestamp: ""
+    kind: KindB
+    name: res1KindB
+    status: null
+    version: 0
+    messages: []
+  - id: ""
+    content: c3
+    timestamp: ""
+    kind: KindB
+    name: res2KindB
+    status: null
+    version: 0
+    messages: []

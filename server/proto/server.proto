@@ -4,19 +4,33 @@ option go_package = "github.com/michaelhenkel/broadcast/server/proto";
 
 package server;
 
-message Client{
+message Controller{
     string id = 1;
     string name = 2;
+    repeated string kinds = 3;
 }
 
 message Message {
     string id = 1;
     string content = 2;
     string timestamp = 3;
-  }
+    string kind = 4;
+    string name = 5;
+    Status status = 6;
+    int32 version = 7;
+    repeated Message messages = 8;
+}
+
+message Status{
+    string msg = 1;
+}
+
+message Messages {
+    repeated Message messages = 1;
+}
 
 message Connect{
-    Client client = 1;
+    Controller controller = 1;
     bool active = 2;
 }
 
@@ -24,5 +38,32 @@ message Close{}
 
 service Broadcast{
     rpc CreateStream(Connect) returns (stream Message);
-    rpc BroadcastMessage(Message) returns (Close);
+    rpc BroadcastMessage(Message) returns (Ack);
+    rpc SendAck(Ack) returns (Result);
 }
+
+message Filter{
+    Controller controller = 1;
+    string name = 2;
+}
+
+service Api{
+    rpc SendMessage(Message) returns (Ack);
+    rpc AddFilter(Filter) returns (Result);
+    rpc DelFilter(Filter) returns (Result);
+    rpc WriteMessage(Message) returns (Result);
+    rpc ReadMessage(Message) returns (Message);
+}
+
+message Ack{
+    Status status = 1;
+    enum Status {
+        SUCCESS = 0;
+        FAIL = 1;
+    }
+    string msg = 2;
+    string timestamp = 3;
+    string controller = 4;
+}
+
+message Result{}

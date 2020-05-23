@@ -29,17 +29,64 @@ const (
 // of the legacy proto package is being used.
 const _ = proto.ProtoPackageIsVersion4
 
-type Client struct {
+type Ack_Status int32
+
+const (
+	Ack_SUCCESS Ack_Status = 0
+	Ack_FAIL    Ack_Status = 1
+)
+
+// Enum value maps for Ack_Status.
+var (
+	Ack_Status_name = map[int32]string{
+		0: "SUCCESS",
+		1: "FAIL",
+	}
+	Ack_Status_value = map[string]int32{
+		"SUCCESS": 0,
+		"FAIL":    1,
+	}
+)
+
+func (x Ack_Status) Enum() *Ack_Status {
+	p := new(Ack_Status)
+	*p = x
+	return p
+}
+
+func (x Ack_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Ack_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_server_proto_enumTypes[0].Descriptor()
+}
+
+func (Ack_Status) Type() protoreflect.EnumType {
+	return &file_server_proto_enumTypes[0]
+}
+
+func (x Ack_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Ack_Status.Descriptor instead.
+func (Ack_Status) EnumDescriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{7, 0}
+}
+
+type Controller struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id   string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Id    string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name  string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Kinds []string `protobuf:"bytes,3,rep,name=kinds,proto3" json:"kinds,omitempty"`
 }
 
-func (x *Client) Reset() {
-	*x = Client{}
+func (x *Controller) Reset() {
+	*x = Controller{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_server_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -47,13 +94,13 @@ func (x *Client) Reset() {
 	}
 }
 
-func (x *Client) String() string {
+func (x *Controller) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Client) ProtoMessage() {}
+func (*Controller) ProtoMessage() {}
 
-func (x *Client) ProtoReflect() protoreflect.Message {
+func (x *Controller) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -65,23 +112,30 @@ func (x *Client) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Client.ProtoReflect.Descriptor instead.
-func (*Client) Descriptor() ([]byte, []int) {
+// Deprecated: Use Controller.ProtoReflect.Descriptor instead.
+func (*Controller) Descriptor() ([]byte, []int) {
 	return file_server_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Client) GetId() string {
+func (x *Controller) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Client) GetName() string {
+func (x *Controller) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *Controller) GetKinds() []string {
+	if x != nil {
+		return x.Kinds
+	}
+	return nil
 }
 
 type Message struct {
@@ -89,9 +143,14 @@ type Message struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id        string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Content   string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	Timestamp string `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Id        string     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Content   string     `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	Timestamp string     `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Kind      string     `protobuf:"bytes,4,opt,name=kind,proto3" json:"kind,omitempty"`
+	Name      string     `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
+	Status    *Status    `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Version   int32      `protobuf:"varint,7,opt,name=version,proto3" json:"version,omitempty"`
+	Messages  []*Message `protobuf:"bytes,8,rep,name=messages,proto3" json:"messages,omitempty"`
 }
 
 func (x *Message) Reset() {
@@ -147,19 +206,148 @@ func (x *Message) GetTimestamp() string {
 	return ""
 }
 
+func (x *Message) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *Message) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Message) GetStatus() *Status {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+func (x *Message) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Message) GetMessages() []*Message {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+type Status struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Msg string `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (x *Status) Reset() {
+	*x = Status{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_server_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Status) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Status) ProtoMessage() {}
+
+func (x *Status) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Status.ProtoReflect.Descriptor instead.
+func (*Status) Descriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Status) GetMsg() string {
+	if x != nil {
+		return x.Msg
+	}
+	return ""
+}
+
+type Messages struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Messages []*Message `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+}
+
+func (x *Messages) Reset() {
+	*x = Messages{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_server_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Messages) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Messages) ProtoMessage() {}
+
+func (x *Messages) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Messages.ProtoReflect.Descriptor instead.
+func (*Messages) Descriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Messages) GetMessages() []*Message {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
 type Connect struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Client *Client `protobuf:"bytes,1,opt,name=client,proto3" json:"client,omitempty"`
-	Active bool    `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
+	Controller *Controller `protobuf:"bytes,1,opt,name=controller,proto3" json:"controller,omitempty"`
+	Active     bool        `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
 }
 
 func (x *Connect) Reset() {
 	*x = Connect{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_server_proto_msgTypes[2]
+		mi := &file_server_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -172,7 +360,7 @@ func (x *Connect) String() string {
 func (*Connect) ProtoMessage() {}
 
 func (x *Connect) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_msgTypes[2]
+	mi := &file_server_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -185,12 +373,12 @@ func (x *Connect) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Connect.ProtoReflect.Descriptor instead.
 func (*Connect) Descriptor() ([]byte, []int) {
-	return file_server_proto_rawDescGZIP(), []int{2}
+	return file_server_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Connect) GetClient() *Client {
+func (x *Connect) GetController() *Controller {
 	if x != nil {
-		return x.Client
+		return x.Controller
 	}
 	return nil
 }
@@ -211,7 +399,7 @@ type Close struct {
 func (x *Close) Reset() {
 	*x = Close{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_server_proto_msgTypes[3]
+		mi := &file_server_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -224,7 +412,7 @@ func (x *Close) String() string {
 func (*Close) ProtoMessage() {}
 
 func (x *Close) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_msgTypes[3]
+	mi := &file_server_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -237,38 +425,253 @@ func (x *Close) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Close.ProtoReflect.Descriptor instead.
 func (*Close) Descriptor() ([]byte, []int) {
-	return file_server_proto_rawDescGZIP(), []int{3}
+	return file_server_proto_rawDescGZIP(), []int{5}
+}
+
+type Filter struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Controller *Controller `protobuf:"bytes,1,opt,name=controller,proto3" json:"controller,omitempty"`
+	Name       string      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+}
+
+func (x *Filter) Reset() {
+	*x = Filter{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_server_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Filter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Filter) ProtoMessage() {}
+
+func (x *Filter) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Filter.ProtoReflect.Descriptor instead.
+func (*Filter) Descriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Filter) GetController() *Controller {
+	if x != nil {
+		return x.Controller
+	}
+	return nil
+}
+
+func (x *Filter) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type Ack struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status     Ack_Status `protobuf:"varint,1,opt,name=status,proto3,enum=server.Ack_Status" json:"status,omitempty"`
+	Msg        string     `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
+	Timestamp  string     `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Controller string     `protobuf:"bytes,4,opt,name=controller,proto3" json:"controller,omitempty"`
+}
+
+func (x *Ack) Reset() {
+	*x = Ack{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_server_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Ack) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ack) ProtoMessage() {}
+
+func (x *Ack) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ack.ProtoReflect.Descriptor instead.
+func (*Ack) Descriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Ack) GetStatus() Ack_Status {
+	if x != nil {
+		return x.Status
+	}
+	return Ack_SUCCESS
+}
+
+func (x *Ack) GetMsg() string {
+	if x != nil {
+		return x.Msg
+	}
+	return ""
+}
+
+func (x *Ack) GetTimestamp() string {
+	if x != nil {
+		return x.Timestamp
+	}
+	return ""
+}
+
+func (x *Ack) GetController() string {
+	if x != nil {
+		return x.Controller
+	}
+	return ""
+}
+
+type Result struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *Result) Reset() {
+	*x = Result{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_server_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Result) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Result) ProtoMessage() {}
+
+func (x *Result) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Result.ProtoReflect.Descriptor instead.
+func (*Result) Descriptor() ([]byte, []int) {
+	return file_server_proto_rawDescGZIP(), []int{8}
 }
 
 var File_server_proto protoreflect.FileDescriptor
 
 var file_server_proto_rawDesc = []byte{
 	0x0a, 0x0c, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x06,
-	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x22, 0x2c, 0x0a, 0x06, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74,
-	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64,
-	0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
-	0x6e, 0x61, 0x6d, 0x65, 0x22, 0x51, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12,
-	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
-	0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x07, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d,
-	0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x69,
-	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x22, 0x49, 0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x6e, 0x65,
-	0x63, 0x74, 0x12, 0x26, 0x0a, 0x06, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6c, 0x69, 0x65,
-	0x6e, 0x74, 0x52, 0x06, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x63,
-	0x74, 0x69, 0x76, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x61, 0x63, 0x74, 0x69,
-	0x76, 0x65, 0x22, 0x07, 0x0a, 0x05, 0x43, 0x6c, 0x6f, 0x73, 0x65, 0x32, 0x73, 0x0a, 0x09, 0x42,
-	0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x12, 0x32, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65,
-	0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x1a, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76,
-	0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x30, 0x01, 0x12, 0x32, 0x0a, 0x10,
-	0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x1a, 0x0d, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6c, 0x6f, 0x73, 0x65,
-	0x42, 0x31, 0x5a, 0x2f, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d,
-	0x69, 0x63, 0x68, 0x61, 0x65, 0x6c, 0x68, 0x65, 0x6e, 0x6b, 0x65, 0x6c, 0x2f, 0x62, 0x72, 0x6f,
-	0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x22, 0x46, 0x0a, 0x0a, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f,
+	0x6c, 0x6c, 0x65, 0x72, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6b, 0x69, 0x6e, 0x64,
+	0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x6b, 0x69, 0x6e, 0x64, 0x73, 0x22, 0xe8,
+	0x01, 0x0a, 0x07, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f,
+	0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x63, 0x6f, 0x6e,
+	0x74, 0x65, 0x6e, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d,
+	0x70, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61,
+	0x6d, 0x70, 0x12, 0x12, 0x0a, 0x04, 0x6b, 0x69, 0x6e, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x6b, 0x69, 0x6e, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x05,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x26, 0x0a, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x07, 0x20,
+	0x01, 0x28, 0x05, 0x52, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x2b, 0x0a, 0x08,
+	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x18, 0x08, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0f,
+	0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52,
+	0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x1a, 0x0a, 0x06, 0x53, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x03, 0x6d, 0x73, 0x67, 0x22, 0x37, 0x0a, 0x08, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x73, 0x12, 0x2b, 0x0a, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x52, 0x08, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x73, 0x22, 0x55,
+	0x0a, 0x07, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x12, 0x32, 0x0a, 0x0a, 0x63, 0x6f, 0x6e,
+	0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65,
+	0x72, 0x52, 0x0a, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x12, 0x16, 0x0a,
+	0x06, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x61,
+	0x63, 0x74, 0x69, 0x76, 0x65, 0x22, 0x07, 0x0a, 0x05, 0x43, 0x6c, 0x6f, 0x73, 0x65, 0x22, 0x50,
+	0x0a, 0x06, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x32, 0x0a, 0x0a, 0x63, 0x6f, 0x6e, 0x74,
+	0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x73,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72,
+	0x52, 0x0a, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c, 0x65, 0x72, 0x12, 0x12, 0x0a, 0x04,
+	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x22, 0xa2, 0x01, 0x0a, 0x03, 0x41, 0x63, 0x6b, 0x12, 0x2a, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x12, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x2e, 0x41, 0x63, 0x6b, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x03, 0x6d, 0x73, 0x67, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73,
+	0x74, 0x61, 0x6d, 0x70, 0x12, 0x1e, 0x0a, 0x0a, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f, 0x6c, 0x6c,
+	0x65, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x6f,
+	0x6c, 0x6c, 0x65, 0x72, 0x22, 0x1f, 0x0a, 0x06, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x0b,
+	0x0a, 0x07, 0x53, 0x55, 0x43, 0x43, 0x45, 0x53, 0x53, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x46,
+	0x41, 0x49, 0x4c, 0x10, 0x01, 0x22, 0x08, 0x0a, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x32,
+	0x99, 0x01, 0x0a, 0x09, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x12, 0x32, 0x0a,
+	0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x0f, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x1a, 0x0f,
+	0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x30,
+	0x01, 0x12, 0x30, 0x0a, 0x10, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x4d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x41, 0x63, 0x6b, 0x12, 0x26, 0x0a, 0x07, 0x53, 0x65, 0x6e, 0x64, 0x41, 0x63, 0x6b, 0x12, 0x0b,
+	0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x41, 0x63, 0x6b, 0x1a, 0x0e, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x32, 0xee, 0x01, 0x0a, 0x03,
+	0x41, 0x70, 0x69, 0x12, 0x2b, 0x0a, 0x0b, 0x53, 0x65, 0x6e, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x1a, 0x0b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x41, 0x63, 0x6b,
+	0x12, 0x2b, 0x0a, 0x09, 0x41, 0x64, 0x64, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x0e, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x1a, 0x0e, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x2b, 0x0a,
+	0x09, 0x44, 0x65, 0x6c, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x0e, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x1a, 0x0e, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x2f, 0x0a, 0x0c, 0x57, 0x72,
+	0x69, 0x74, 0x65, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0e, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x2f, 0x0a, 0x0b, 0x52,
+	0x65, 0x61, 0x64, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x0f, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x1a, 0x0f, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x42, 0x31, 0x5a, 0x2f,
+	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6d, 0x69, 0x63, 0x68, 0x61,
+	0x65, 0x6c, 0x68, 0x65, 0x6e, 0x6b, 0x65, 0x6c, 0x2f, 0x62, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61,
+	0x73, 0x74, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -283,24 +686,48 @@ func file_server_proto_rawDescGZIP() []byte {
 	return file_server_proto_rawDescData
 }
 
-var file_server_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_server_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_server_proto_goTypes = []interface{}{
-	(*Client)(nil),  // 0: server.Client
-	(*Message)(nil), // 1: server.Message
-	(*Connect)(nil), // 2: server.Connect
-	(*Close)(nil),   // 3: server.Close
+	(Ack_Status)(0),    // 0: server.Ack.Status
+	(*Controller)(nil), // 1: server.Controller
+	(*Message)(nil),    // 2: server.Message
+	(*Status)(nil),     // 3: server.Status
+	(*Messages)(nil),   // 4: server.Messages
+	(*Connect)(nil),    // 5: server.Connect
+	(*Close)(nil),      // 6: server.Close
+	(*Filter)(nil),     // 7: server.Filter
+	(*Ack)(nil),        // 8: server.Ack
+	(*Result)(nil),     // 9: server.Result
 }
 var file_server_proto_depIdxs = []int32{
-	0, // 0: server.Connect.client:type_name -> server.Client
-	2, // 1: server.Broadcast.CreateStream:input_type -> server.Connect
-	1, // 2: server.Broadcast.BroadcastMessage:input_type -> server.Message
-	1, // 3: server.Broadcast.CreateStream:output_type -> server.Message
-	3, // 4: server.Broadcast.BroadcastMessage:output_type -> server.Close
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	3,  // 0: server.Message.status:type_name -> server.Status
+	2,  // 1: server.Message.messages:type_name -> server.Message
+	2,  // 2: server.Messages.messages:type_name -> server.Message
+	1,  // 3: server.Connect.controller:type_name -> server.Controller
+	1,  // 4: server.Filter.controller:type_name -> server.Controller
+	0,  // 5: server.Ack.status:type_name -> server.Ack.Status
+	5,  // 6: server.Broadcast.CreateStream:input_type -> server.Connect
+	2,  // 7: server.Broadcast.BroadcastMessage:input_type -> server.Message
+	8,  // 8: server.Broadcast.SendAck:input_type -> server.Ack
+	2,  // 9: server.Api.SendMessage:input_type -> server.Message
+	7,  // 10: server.Api.AddFilter:input_type -> server.Filter
+	7,  // 11: server.Api.DelFilter:input_type -> server.Filter
+	2,  // 12: server.Api.WriteMessage:input_type -> server.Message
+	2,  // 13: server.Api.ReadMessage:input_type -> server.Message
+	2,  // 14: server.Broadcast.CreateStream:output_type -> server.Message
+	8,  // 15: server.Broadcast.BroadcastMessage:output_type -> server.Ack
+	9,  // 16: server.Broadcast.SendAck:output_type -> server.Result
+	8,  // 17: server.Api.SendMessage:output_type -> server.Ack
+	9,  // 18: server.Api.AddFilter:output_type -> server.Result
+	9,  // 19: server.Api.DelFilter:output_type -> server.Result
+	9,  // 20: server.Api.WriteMessage:output_type -> server.Result
+	2,  // 21: server.Api.ReadMessage:output_type -> server.Message
+	14, // [14:22] is the sub-list for method output_type
+	6,  // [6:14] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_server_proto_init() }
@@ -310,7 +737,7 @@ func file_server_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_server_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Client); i {
+			switch v := v.(*Controller); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -334,7 +761,7 @@ func file_server_proto_init() {
 			}
 		}
 		file_server_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Connect); i {
+			switch v := v.(*Status); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -346,7 +773,67 @@ func file_server_proto_init() {
 			}
 		}
 		file_server_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Messages); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_server_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Connect); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_server_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Close); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_server_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Filter); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_server_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Ack); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_server_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Result); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -363,13 +850,14 @@ func file_server_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_server_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_server_proto_goTypes,
 		DependencyIndexes: file_server_proto_depIdxs,
+		EnumInfos:         file_server_proto_enumTypes,
 		MessageInfos:      file_server_proto_msgTypes,
 	}.Build()
 	File_server_proto = out.File
@@ -391,7 +879,8 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BroadcastClient interface {
 	CreateStream(ctx context.Context, in *Connect, opts ...grpc.CallOption) (Broadcast_CreateStreamClient, error)
-	BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Close, error)
+	BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Ack, error)
+	SendAck(ctx context.Context, in *Ack, opts ...grpc.CallOption) (*Result, error)
 }
 
 type broadcastClient struct {
@@ -434,9 +923,18 @@ func (x *broadcastCreateStreamClient) Recv() (*Message, error) {
 	return m, nil
 }
 
-func (c *broadcastClient) BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Close, error) {
-	out := new(Close)
+func (c *broadcastClient) BroadcastMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
 	err := c.cc.Invoke(ctx, "/server.Broadcast/BroadcastMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *broadcastClient) SendAck(ctx context.Context, in *Ack, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/server.Broadcast/SendAck", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -446,7 +944,8 @@ func (c *broadcastClient) BroadcastMessage(ctx context.Context, in *Message, opt
 // BroadcastServer is the server API for Broadcast service.
 type BroadcastServer interface {
 	CreateStream(*Connect, Broadcast_CreateStreamServer) error
-	BroadcastMessage(context.Context, *Message) (*Close, error)
+	BroadcastMessage(context.Context, *Message) (*Ack, error)
+	SendAck(context.Context, *Ack) (*Result, error)
 }
 
 // UnimplementedBroadcastServer can be embedded to have forward compatible implementations.
@@ -456,8 +955,11 @@ type UnimplementedBroadcastServer struct {
 func (*UnimplementedBroadcastServer) CreateStream(*Connect, Broadcast_CreateStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method CreateStream not implemented")
 }
-func (*UnimplementedBroadcastServer) BroadcastMessage(context.Context, *Message) (*Close, error) {
+func (*UnimplementedBroadcastServer) BroadcastMessage(context.Context, *Message) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BroadcastMessage not implemented")
+}
+func (*UnimplementedBroadcastServer) SendAck(context.Context, *Ack) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendAck not implemented")
 }
 
 func RegisterBroadcastServer(s *grpc.Server, srv BroadcastServer) {
@@ -503,6 +1005,24 @@ func _Broadcast_BroadcastMessage_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Broadcast_SendAck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Ack)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BroadcastServer).SendAck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Broadcast/SendAck",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BroadcastServer).SendAck(ctx, req.(*Ack))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Broadcast_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "server.Broadcast",
 	HandlerType: (*BroadcastServer)(nil),
@@ -510,6 +1030,10 @@ var _Broadcast_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BroadcastMessage",
 			Handler:    _Broadcast_BroadcastMessage_Handler,
+		},
+		{
+			MethodName: "SendAck",
+			Handler:    _Broadcast_SendAck_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -519,5 +1043,221 @@ var _Broadcast_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
+	Metadata: "server.proto",
+}
+
+// ApiClient is the client API for Api service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ApiClient interface {
+	SendMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Ack, error)
+	AddFilter(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Result, error)
+	DelFilter(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Result, error)
+	WriteMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Result, error)
+	ReadMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
+}
+
+type apiClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewApiClient(cc grpc.ClientConnInterface) ApiClient {
+	return &apiClient{cc}
+}
+
+func (c *apiClient) SendMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
+	err := c.cc.Invoke(ctx, "/server.Api/SendMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiClient) AddFilter(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/server.Api/AddFilter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiClient) DelFilter(ctx context.Context, in *Filter, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/server.Api/DelFilter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiClient) WriteMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
+	err := c.cc.Invoke(ctx, "/server.Api/WriteMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiClient) ReadMessage(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
+	out := new(Message)
+	err := c.cc.Invoke(ctx, "/server.Api/ReadMessage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ApiServer is the server API for Api service.
+type ApiServer interface {
+	SendMessage(context.Context, *Message) (*Ack, error)
+	AddFilter(context.Context, *Filter) (*Result, error)
+	DelFilter(context.Context, *Filter) (*Result, error)
+	WriteMessage(context.Context, *Message) (*Result, error)
+	ReadMessage(context.Context, *Message) (*Message, error)
+}
+
+// UnimplementedApiServer can be embedded to have forward compatible implementations.
+type UnimplementedApiServer struct {
+}
+
+func (*UnimplementedApiServer) SendMessage(context.Context, *Message) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendMessage not implemented")
+}
+func (*UnimplementedApiServer) AddFilter(context.Context, *Filter) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddFilter not implemented")
+}
+func (*UnimplementedApiServer) DelFilter(context.Context, *Filter) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DelFilter not implemented")
+}
+func (*UnimplementedApiServer) WriteMessage(context.Context, *Message) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WriteMessage not implemented")
+}
+func (*UnimplementedApiServer) ReadMessage(context.Context, *Message) (*Message, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReadMessage not implemented")
+}
+
+func RegisterApiServer(s *grpc.Server, srv ApiServer) {
+	s.RegisterService(&_Api_serviceDesc, srv)
+}
+
+func _Api_SendMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).SendMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Api/SendMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).SendMessage(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Api_AddFilter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).AddFilter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Api/AddFilter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).AddFilter(ctx, req.(*Filter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Api_DelFilter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filter)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).DelFilter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Api/DelFilter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).DelFilter(ctx, req.(*Filter))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Api_WriteMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).WriteMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Api/WriteMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).WriteMessage(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Api_ReadMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServer).ReadMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Api/ReadMessage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServer).ReadMessage(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Api_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "server.Api",
+	HandlerType: (*ApiServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SendMessage",
+			Handler:    _Api_SendMessage_Handler,
+		},
+		{
+			MethodName: "AddFilter",
+			Handler:    _Api_AddFilter_Handler,
+		},
+		{
+			MethodName: "DelFilter",
+			Handler:    _Api_DelFilter_Handler,
+		},
+		{
+			MethodName: "WriteMessage",
+			Handler:    _Api_WriteMessage_Handler,
+		},
+		{
+			MethodName: "ReadMessage",
+			Handler:    _Api_ReadMessage_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "server.proto",
 }

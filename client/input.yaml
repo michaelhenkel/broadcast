@@ -1,0 +1,10 @@
+kind: KindA
+name: res1KindA
+content: c1
+messages:
+- kind: KindB
+  name: res1KindB
+  content: c2
+- kind: KindB
+  name: res2KindB
+  content: c3

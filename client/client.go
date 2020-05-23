@@ -1,112 +1,75 @@
 package main
 
 import (
-	"bufio"
-	"crypto/sha256"
+	"context"
 	"flag"
 	"fmt"
-	"os"
-
-	proto "github.com/michaelhenkel/broadcast/server/proto"
-
-	"encoding/hex"
+	"io/ioutil"
 	"log"
-	"sync"
+	"os"
 	"time"
 
-	"golang.org/x/net/context"
+	proto "github.com/michaelhenkel/broadcast/server/proto"
+	"github.com/michaelhenkel/broadcast/utils"
 	"google.golang.org/grpc"
+	glog "google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/peer"
+	"gopkg.in/yaml.v2"
 )
 
 var (
-	broadcastClient proto.BroadcastClient
-	port            = flag.Int("port", 10000, "The server port")
-	wait            *sync.WaitGroup
+	apiClient   proto.ApiClient
+	serverAddrs addrsValue
+	port        = flag.Int("port", 10000, "The server port")
+	kind        = flag.String("kind", "kind1", "message kind")
+	name        = flag.String("name", "name", "message name")
+	file        = flag.String("file", "input.yaml", "file name")
+
+	grpcLog glog.LoggerV2
 )
 
-func init() {
-	wait = &sync.WaitGroup{}
+type addrsValue []string
+
+func (as *addrsValue) String() string {
+	return "localhost:10000"
 }
 
-func connect(client *proto.Client) error {
-	var streamerror error
+func (as *addrsValue) Set(addr string) error {
+	*as = append(*as, addr)
+	return nil
+}
 
-	stream, err := broadcastClient.CreateStream(context.Background(), &proto.Connect{
-		Client: client,
-		Active: true,
-	})
-
-	if err != nil {
-		return fmt.Errorf("connection failed: %v", err)
-	}
-
-	wait.Add(1)
-	go func(str proto.Broadcast_CreateStreamClient) {
-		defer wait.Done()
-
-		for {
-			msg, err := str.Recv()
-			if err != nil {
-				streamerror = fmt.Errorf("Error reading message: %v", err)
-				break
-			}
-
-			fmt.Printf("%v : %s\n", msg.Id, msg.Content)
-
-		}
-	}(stream)
-
-	return streamerror
+func init() {
+	grpcLog = glog.NewLoggerV2(os.Stdout, os.Stdout, os.Stdout)
 }
 
 func main() {
-	flag.Parse()
-	timestamp := time.Now()
-	done := make(chan int)
-
-	name := flag.String("N", "Anon", "The name of the user")
+	flag.Var(&serverAddrs, "server", "Server hostports")
 	flag.Parse()
 
-	id := sha256.Sum256([]byte(timestamp.String() + *name))
-
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", *port), grpc.WithInsecure())
+	inputYaml, err := ioutil.ReadFile(*file)
 	if err != nil {
-		log.Fatalf("Couldnt connect to service: %v", err)
+		log.Fatalln(err)
+	}
+	msg := &proto.Message{}
+	if err := yaml.Unmarshal(inputYaml, msg); err != nil {
+		log.Fatal(err)
 	}
 
-	broadcastClient = proto.NewBroadcastClient(conn)
-	client := &proto.Client{
-		Id:   hex.EncodeToString(id[:]),
-		Name: *name,
+	conn, err := grpc.Dial("dummy", grpc.WithInsecure(), grpc.WithBalancer(grpc.RoundRobin(utils.NewPseudoResolver(serverAddrs))))
+	if err != nil {
+		log.Fatalf("Couldnt connect to api: %v", err)
 	}
 
-	connect(client)
+	apiClient = proto.NewApiClient(conn)
+	msg.Timestamp = time.Now().String()
+	msg.Id = "client1"
+	var p peer.Peer
+	ack, err := apiClient.SendMessage(context.Background(), msg, grpc.FailFast(false), grpc.Peer(&p))
+	if err != nil {
+		fmt.Println(conn.GetState().String())
+		log.Fatalf("Couldnt send msg to service: %v", err)
+	}
+	grpcLog.Info("ack: ", ack)
 
-	wait.Add(1)
-	go func() {
-		defer wait.Done()
-
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			msg := &proto.Message{
-				Id:        client.Id,
-				Content:   scanner.Text(),
-				Timestamp: timestamp.String(),
-			}
-
-			_, err := broadcastClient.BroadcastMessage(context.Background(), msg)
-			if err != nil {
-				fmt.Printf("Error Sending Message: %v", err)
-				break
-			}
-		}
-
-	}()
-
-	go func() {
-		wait.Wait()
-		close(done)
-	}()
-
-	<-done
 }

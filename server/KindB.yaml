@@ -1,0 +1,19 @@
+messages:
+- id: ""
+  content: c2
+  timestamp: ""
+  kind: KindB
+  name: res1KindB
+  status:
+    msg: SUCCESS
+  version: 8
+  messages: []
+- id: ""
+  content: c3
+  timestamp: ""
+  kind: KindB
+  name: res2KindB
+  status:
+    msg: SUCCESS
+  version: 8
+  messages: []
